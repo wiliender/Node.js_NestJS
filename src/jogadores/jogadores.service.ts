@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import { CriarJogadorDto } from './dtos/criar-jogador.dto';
 import { Jogador } from './interfaces/jogador.interface';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,15 +6,18 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class JogadoresService {
 
-    private Jogador: Jogador[] = [];
+    private jogadores: Jogador[] = [];
 
     private readonly logger = new Logger(JogadoresService.name)
 
     async criarAtualizarJogador(criaJogadorDto: CriarJogadorDto): Promise<void> {
         
-     this.criar(criaJogadorDto);
+    this.criar(criaJogadorDto);
     
+    }
 
+    async consultarTodosJogadores(): Promise<Jogador[]> {
+        return await this.jogadores;
     }
 
     private criar(criaJogadorDto: CriarJogadorDto): void{
@@ -31,6 +33,7 @@ export class JogadoresService {
             urlFotoJogador:'www.google.com.br/foto123.jpg'
         };
         this.logger.log(`criaJogadorDto: ${JSON.stringify(jogador)}`)
-        this.Jogador.push(jogador);
+        this.jogadores.push(jogador);
     }
+
 }
