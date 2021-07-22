@@ -5,55 +5,67 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class JogadoresService {
+  private jogadores: Jogador[] = [];
 
-    private jogadores: Jogador[] = [];
+  private readonly logger = new Logger(JogadoresService.name);
 
-    private readonly logger = new Logger(JogadoresService.name)
+  async criarAtualizarJogador(criaJogadorDto: CriarJogadorDto): Promise<void> {
+    const { email } = criaJogadorDto;
 
-    async criarAtualizarJogador(criaJogadorDto: CriarJogadorDto): Promise<void> {
-        const  { email } = criaJogadorDto
+    const jogadorEncontrado = this.jogadores.find(
+      jogador => jogador.email === email,
+    );
 
-        const jogadorEncontrado = await this.jogadores.find(jogador => jogador.email === email)
-        
-        if (jogadorEncontrado) {
-            this.atualizar(jogadorEncontrado, criaJogadorDto)
-        } else {
-            this.criar(criaJogadorDto);
-        }
-    
+    if (jogadorEncontrado) {
+      this.atualizar(jogadorEncontrado, criaJogadorDto);
+    } else {
+      this.criar(criaJogadorDto);
     }
+  }
 
-    async consultarTodosJogadores(): Promise<Jogador[]> {
-        return this.jogadores;
+  async consultarTodosJogadores(): Promise<Jogador[]> {
+    return this.jogadores;
+  }
+
+  async consultarJogadorPeloEmail(email: string): Promise<Jogador> {
+    const jogadorEncontrado = this.jogadores.find(
+      jogador => jogador.email === email,
+    );
+    if (!jogadorEncontrado) {
+      throw new NotFoundException(`Jogador com e-mail ${email} não encontrado`);
     }
+    return jogadorEncontrado;
+  }
 
-    async consultarJogadorPeloEmail(email: string): Promise<Jogador> {
-        const jogadorEncontrado = await this.jogadores.find(jogador => jogador.email === email)
-        if(!jogadorEncontrado){
-            throw new NotFoundException(`Jogador com e-mail ${email} não encontrado`)
-        }
-        return jogadorEncontrado
-    }
+  async deletarJogador(email): Promise<void> {
+    const jogadorEncontrado = this.jogadores.find(
+      jogador => jogador.email === email,
+    );
+    this.jogadores = this.jogadores.filter(
+      jogador => jogador.email !== jogadorEncontrado.email,
+    );
+  }
 
-    private criar(criaJogadorDto: CriarJogadorDto): void{
-        const { name, telephoneCell, email } = criaJogadorDto 
+  private criar(criaJogadorDto: CriarJogadorDto): void {
+    const { name, telefoneCelular, email } = criaJogadorDto;
+    const jogador: Jogador = {
+      _id: uuidv4(),
+      name,
+      telefoneCelular,
+      email,
+      ranking: 'A',
+      posicaoRanking: 1,
+      urlFotoJogador: 'www.google.com.br/foto123.jpg',
+    };
+    this.logger.log(`criaJogadorDto: ${JSON.stringify(jogador)}`);
+    this.jogadores.push(jogador);
+  }
 
-        const jogador: Jogador = {
-            _id: uuidv4(),
-            name,
-            telephoneCell,
-            email,
-            ranking: 'A',
-            posicaoRanking: 1,
-            urlFotoJogador:'www.google.com.br/foto123.jpg'
-        };
-        this.logger.log(`criaJogadorDto: ${JSON.stringify(jogador)}`)
-        this.jogadores.push(jogador);
-    }
-
-    private atualizar(jogadorEncontrado: Jogador, CriarJogadorDto: CriarJogadorDto): void {
-        const { name } = CriarJogadorDto
-
-        jogadorEncontrado.name = name;
-    }
+  private atualizar(
+    jogadorEncontrado: Jogador,
+    criarJogadorDto: CriarJogadorDto,
+  ): void {
+    const { name } = criarJogadorDto;
+    jogadorEncontrado.name = name;
+  }
 }

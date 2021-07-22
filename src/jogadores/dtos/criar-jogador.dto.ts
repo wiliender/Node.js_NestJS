@@ -1,5 +1,5 @@
 export class CriarJogadorDto{
-    readonly telephoneCell: string;
+    readonly telefoneCelular: string;
     readonly email: string;
     readonly name: string;
 }
